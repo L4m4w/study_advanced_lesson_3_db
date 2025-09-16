@@ -18,7 +18,7 @@ class TestLocalApi:
         response = requests.get(f"{self.BASE_URL}/users?page=2&per_page=3")
         assert response.status_code == 401
 
-    def test_get_users_unauthorized_response_body(self):
+    def test_get_users_unauthorized_response_message(self):
         response = requests.get(f"{self.BASE_URL}/users?page=2&per_page=3")
         assert response.json()['error'] == 'Missing API key'
 
