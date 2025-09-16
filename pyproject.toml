@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "study-advanced"
+version = "0.1.0"
+description = "Study project by python qa advanced"
+authors = ["L4m4w <l4p41@yandex.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
