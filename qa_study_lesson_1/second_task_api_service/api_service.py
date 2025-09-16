@@ -1,7 +1,5 @@
-from typing import Union
 from starlette.responses import JSONResponse
-from fastapi import FastAPI, Response, Header
-from pydantic import BaseModel
+from fastapi import FastAPI, Header
 
 """
 Вместо https://reqres.in разработать свой микросервис в стеке Python + FastAPI (допускается также Flask, Django).
@@ -11,8 +9,18 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
+@app.get("/api/users/{id}")
+def get_user_by_id(id):
+    return {
+                "id": id,
+                "email": "george.bluth@reqres.in",
+                "first_name": "George",
+                "last_name": "Bluth",
+                "avatar": "https://reqres.in/img/faces/1-image.jpg"
+            }
+
 @app.get("/api/users", status_code=200)
-def get_users(page='1', per_page=None,x_api_key = Header(default=None)):
+def get_users(page='1', per_page=None, x_api_key = Header(default=None)):
     if x_api_key  != "reqres-free-v1":
         return JSONResponse(content={"error": "Missing API key"}, status_code=401)
     else:
