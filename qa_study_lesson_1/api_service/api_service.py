@@ -1,5 +1,6 @@
 from starlette.responses import JSONResponse
 from fastapi import FastAPI, Header
+from http import HTTPStatus
 
 """
 Вместо https://reqres.in разработать свой микросервис в стеке Python + FastAPI (допускается также Flask, Django).
@@ -19,10 +20,10 @@ def get_user_by_id(id):
                 "avatar": "https://reqres.in/img/faces/1-image.jpg"
             }
 
-@app.get("/api/users", status_code=200)
+@app.get("/api/users", status_code=HTTPStatus.OK)
 def get_users(page='1', per_page=None, x_api_key = Header(default=None)):
     if x_api_key  != "reqres-free-v1":
-        return JSONResponse(content={"error": "Missing API key"}, status_code=401)
+        return JSONResponse(content={"error": "Missing API key"}, status_code=HTTPStatus.UNAUTHORIZED)
     else:
         response_message = {
             "page": page,
