@@ -24,8 +24,7 @@
 
 4. **Запустить сервис:**
 ```bash
-    cd qa_study_lesson_1/api_service/
-    uvicorn api_service:app --reload
+    uvicorn api_service.api_service:app --reload
 ```
 5. **Запустить тесты:**
 - Для первого задания
