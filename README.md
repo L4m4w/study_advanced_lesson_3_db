@@ -13,7 +13,7 @@
 1. **Склонировать репозиторий**
 2. **Создать и активировать виртуальное окружение**
 ```bash
-    python -m venv .venv
+    python3 -m venv .venv
     source .venv/bin/activate # Linux/macOS  
     .\.venv\Scripts\activate   # Windows  
 ```
