@@ -20,7 +20,7 @@ def status() -> AppStatus:
     return AppStatus(users=bool(users))
 
 @app.get("/api/status", status_code=HTTPStatus.OK)
-def status() -> dict[str, str]:
+def api_status() -> dict[str, str]:
     return {"status": "healthy"}
 
 @app.get("/api/users/{id}")
