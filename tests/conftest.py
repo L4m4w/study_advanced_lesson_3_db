@@ -1,7 +1,7 @@
 import pytest
 import json
 
-from api_service.helpers import PROJECT_ROOT
+from app.helpers import PROJECT_ROOT
 
 
 @pytest.fixture(autouse=True, scope="class")
