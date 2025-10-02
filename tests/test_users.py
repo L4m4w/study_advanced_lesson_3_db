@@ -19,15 +19,17 @@ class TestLocalApi:
         assert response.json()['detail']['error'] == 'Missing API key'
 
     @pytest.mark.local
+    # @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.parametrize("user_id, expected_email", [
                                  (1, "george.bluth@reqres.in"),
                                  (2, "janet.weaver@reqres.in"),
                                  (3, "emma.wong@reqres.in")
                              ])
     def test_get_users_check_email_of_user(self, user_id, expected_email):
-        response = requests.get(f"{self.BASE_URL}/api/users", headers=self.headers)
-        item = [item for item in response.json()['data'] if item.get('id') == user_id]
-        assert item[0]['email'] == expected_email
+        response = requests.get(f"{self.BASE_URL}/api/users/{user_id}", headers=self.headers)
+        # item = [item for item in response.json()['data'] if item.get('id') == user_id]
+        print(response.json())
+        assert response.json()['email'] == expected_email
 
     """
     4. Добавить тесты на пагинацию. Тестовых данных должно быть достаточно для проверки пагинации (не менее 10).
