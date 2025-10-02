@@ -1,6 +1,8 @@
 import pytest
 import json
 
+import requests
+
 from app.helpers import PROJECT_ROOT
 
 
@@ -24,3 +26,8 @@ def get_users_by_id(get_users):
         return [item for item in get_users if item.get('id') == user_id]
 
     return _find_user
+
+@pytest.fixture()
+def fill_test_data(request, get_users):
+    for user in get_users:
+        requests.post(f'{request.cls.BASE_URL}/api/users/', json=user)
