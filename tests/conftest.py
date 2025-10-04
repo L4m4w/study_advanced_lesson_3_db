@@ -2,6 +2,7 @@ import pytest
 import json
 
 import requests
+from faker import Faker
 
 from app.helpers import PROJECT_ROOT
 
@@ -41,7 +42,53 @@ def fill_test_data(request, get_users):
         response = requests.post(f'{request.cls.BASE_URL}/api/users/', json=user)
         api_users.append(response.json())
 
-    yield
+    user_ids = [user['id'] for user in api_users]
 
-    for user in api_users:
-        requests.delete(f'{request.cls.BASE_URL}/api/users/{user['id']}')
+    yield user_ids
+
+    for user_id in user_ids:
+        requests.delete(f'{request.cls.BASE_URL}/api/users/{user_id}')
+
+
+@pytest.fixture
+def generate_users_batch():
+
+    fake = Faker()
+
+    def _generate_batch(count=3, **common_kwargs):
+        users = []
+        for i in range(count):
+            first_name = common_kwargs.get('first_name', fake.first_name())
+            last_name = common_kwargs.get('last_name', fake.last_name())
+
+            user_data = {
+                "email": f"{first_name.lower()}.{last_name.lower()}@reqres.in",
+                "first_name": first_name,
+                "last_name": last_name,
+                "avatar": f"https://reqres.in/img/faces/{first_name}-image.jpg"
+            }
+
+            # Обновляем общими параметрами и индивидуальными
+            user_data.update(common_kwargs)
+            """
+            specific_users = generate_users_batch(
+                3, 
+                first_name="SameFirstName"  # У всех одинаковое имя
+            )
+            """
+            users.append(user_data)
+
+
+        # users = json.dumps(users)
+
+
+        return users
+
+    return _generate_batch
+
+@pytest.fixture()
+def create_user(request):
+    def _create_user(user):
+        response = requests.post(f'{request.cls.BASE_URL}/api/users/', json=user)
+        return response.json()['id']
+    return _create_user

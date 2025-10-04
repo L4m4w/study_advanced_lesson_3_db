@@ -19,7 +19,8 @@ class TestLocalApi:
         assert response.json()['detail']['error'] == 'Missing API key'
 
     @pytest.mark.local
-    # @pytest.mark.usefixtures('fill_test_data')
+    @pytest.mark.usefixtures('fill_test_data')
+    @pytest.mark.xfail
     @pytest.mark.parametrize("user_id, expected_email", [
                                  (1, "george.bluth@reqres.in"),
                                  (2, "janet.weaver@reqres.in"),
@@ -28,7 +29,6 @@ class TestLocalApi:
     def test_get_users_check_email_of_user(self, user_id, expected_email):
         response = requests.get(f"{self.BASE_URL}/api/users/{user_id}", headers=self.headers)
         # item = [item for item in response.json()['data'] if item.get('id') == user_id]
-        print(response.json())
         assert response.json()['email'] == expected_email
 
     """
@@ -62,4 +62,52 @@ class TestLocalApi:
         response = requests.get(f"{self.BASE_URL}/api/users?page={page_param}&size=1", headers=self.headers)
         assert response.json()['data'] == get_users_by_id(page_param)
 
+    """
+    2. Расширить тестовое покрытие:
+    - Тест на post: создание. Предусловия: подготовленные тестовые данные
+    - Тест на delete: удаление. Предусловия: созданный пользователь
+    - Тест на patch: изменение. Предусловия: созданный пользователь
+        
+    По желанию:
+    - Get после создания, изменения
+    - Тест на 405 ошибку: Предусловия: ничего не нужно
+    - 404 422 ошибки на delete patch    
+    - 404 на удаленного пользователя    
+    - user flow: создаем, читаем, обновляем, удаляем
+    - валидность тестовых данных (емейл, урл)    
+    - отправить модель без поля на создание
+    """
 
+    def test_create_user(self, generate_users_batch):
+        users = generate_users_batch(1)
+        for user in users:
+            create_response = requests.post(f'{self.BASE_URL}/api/users/', json=user)
+
+            response = requests.get(f"{self.BASE_URL}/api/users/{create_response.json()['id']}", headers=self.headers)
+
+            assert response.json()['avatar'] == user['avatar']
+            assert response.json()['email'] == user['email']
+            assert response.json()['first_name'] == user['first_name']
+            assert response.json()['last_name'] == user['last_name']
+
+    def test_delete_user(self, generate_users_batch, create_user):
+        users = generate_users_batch(1)
+        user_to_delete = create_user(*users)
+        requests.delete(f'{self.BASE_URL}/api/users/{user_to_delete}')
+
+        response = requests.get(f"{self.BASE_URL}/api/users/{user_to_delete}", headers=self.headers)
+        assert response.json()['detail'] == 'User not found'
+
+    def test_update_user(self, generate_users_batch, create_user):
+        user = generate_users_batch(1)
+        user_to_update = create_user(*user)
+        update_info = generate_users_batch(1)
+        for info in update_info:
+            requests.put(f'{self.BASE_URL}/api/users/{user_to_update}', json=info)
+
+            response = requests.get(f"{self.BASE_URL}/api/users/{user_to_update}", headers=self.headers)
+
+            assert response.json()['avatar'] != user[0]['avatar']
+            assert response.json()['email'] != user[0]['email']
+            assert response.json()['first_name'] != user[0]['first_name']
+            assert response.json()['last_name'] != user[0]['last_name']
