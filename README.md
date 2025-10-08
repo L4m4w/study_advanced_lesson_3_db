@@ -34,12 +34,12 @@
     cp .env.example .env
 ```
 
-4. **Запустите Docker-контейнеры:**
+5. **Запустите Docker-контейнеры:**
 ```bash
     docker compose up -d
 ```
 
-4. **Запустите приложение:**
+6. **Запустите приложение:**
 ```bash
     poetry run uvicorn app.main:app --reload
 ```
@@ -60,9 +60,7 @@
 ```bash
     pytest -v -m http
 ```
-
-
-5. Расположение: 
+Расположение тестов: 
 - tests.test_users.TestLocalApi.test_create_user
 - tests.test_users.TestLocalApi.test_delete_user
 - tests.test_users.TestLocalApi.test_update_user
@@ -71,4 +69,3 @@
 
 - `api_service` - основной сервис
 - `tests` - автотесты
-- `models` - базовые модели данных
