@@ -78,10 +78,17 @@ class TestLocalApi:
     - отправить модель без поля на создание
     """
 
+    @pytest.mark.http
     def test_create_user(self, generate_users_batch):
-        users = generate_users_batch(1)
+
+        generate_func, user_ids_tracker = generate_users_batch
+        users = generate_func(1)
+
         for user in users:
             create_response = requests.post(f'{self.BASE_URL}/api/users/', json=user)
+            user_id = create_response.json()['id']
+
+            user_ids_tracker.append(user_id)
 
             response = requests.get(f"{self.BASE_URL}/api/users/{create_response.json()['id']}", headers=self.headers)
 
@@ -90,20 +97,31 @@ class TestLocalApi:
             assert response.json()['first_name'] == user['first_name']
             assert response.json()['last_name'] == user['last_name']
 
+    @pytest.mark.http
     def test_delete_user(self, generate_users_batch, create_user):
-        users = generate_users_batch(1)
+        generate_func, user_ids_tracker = generate_users_batch
+        users = generate_func(1)
+
         user_to_delete = create_user(*users)
+
         requests.delete(f'{self.BASE_URL}/api/users/{user_to_delete}')
 
         response = requests.get(f"{self.BASE_URL}/api/users/{user_to_delete}", headers=self.headers)
         assert response.json()['detail'] == 'User not found'
 
+    @pytest.mark.http
     def test_update_user(self, generate_users_batch, create_user):
-        user = generate_users_batch(1)
+        generate_func, user_ids_tracker = generate_users_batch
+        user = generate_func(1)
+
         user_to_update = create_user(*user)
-        update_info = generate_users_batch(1)
+        update_info = generate_func(1)
+
         for info in update_info:
-            requests.put(f'{self.BASE_URL}/api/users/{user_to_update}', json=info)
+            put_response = requests.put(f'{self.BASE_URL}/api/users/{user_to_update}', json=info)
+            user_id = put_response.json()['id']
+
+            user_ids_tracker.append(user_id)
 
             response = requests.get(f"{self.BASE_URL}/api/users/{user_to_update}", headers=self.headers)
 

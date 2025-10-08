@@ -29,31 +29,43 @@
   poetry install
 ```
 
-4. **Запустить сервис:**
-- Запуск из api_service/api_service.py
-5. **Запустить тесты:**
-- Для первого задания
+4. Создание .env файла
 ```bash
-    pytest -v -m smoke
+    cp .env.example .env
 ```
-- Для четвертого и пятого заданий
+
+4. **Запустите Docker-контейнеры:**
 ```bash
-    pytest -v -m pagination
+    docker compose up -d
 ```
+
+4. **Запустите приложение:**
+```bash
+    poetry run uvicorn app.main:app --reload
+```
+
+После этого API будет доступен по адресу **`http://127.0.0.1:8000`**.
 ##  Задание
 
-1. Расположение: tests.test_smoke.TestSmokeApi
+1. Запустить postgresql в докере.
+Запустить проект локально (в докере будем запускать в следующем занятии).
+```bash
+    docker compose up -d
+```
+2. Расширить тестовое покрытие:
 
-2. Расположение: api_service.api_service.status
+- Тест на post: создание. Предусловия: подготовленные тестовые данные
+- Тест на delete: удаление. Предусловия: созданный пользователь
+- Тест на patch: изменение. Предусловия: созданный пользователь
+```bash
+    pytest -v -m http
+```
 
-3. Расположение: api_service.api_service.get_users
-
-4. Расположение: tests.test_users.TestLocalApi.test_get_users_check_users_data_amount
 
 5. Расположение: 
-- tests.test_users.TestLocalApi.test_get_users_check_users_data_amount
-- tests.test_users.TestLocalApi.test_get_users_data_check_by_size_param
-- tests.test_users.TestLocalApi.test_get_users_data_check_by_page_param
+- tests.test_users.TestLocalApi.test_create_user
+- tests.test_users.TestLocalApi.test_delete_user
+- tests.test_users.TestLocalApi.test_update_user
 
 ## Модули
 

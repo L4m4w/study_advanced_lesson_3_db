@@ -51,9 +51,10 @@ def fill_test_data(request, get_users):
 
 
 @pytest.fixture
-def generate_users_batch():
+def generate_users_batch(request):
 
     fake = Faker()
+    created_users_id = []
 
     def _generate_batch(count=3, **common_kwargs):
         users = []
@@ -84,7 +85,16 @@ def generate_users_batch():
 
         return users
 
-    return _generate_batch
+    yield _generate_batch, created_users_id
+
+    for user_id in created_users_id:
+        try:
+            requests.delete(f'{request.cls.BASE_URL}/api/users/{user_id}')
+            print(f"Deleted user with ID: {user_id}")
+        except Exception as e:
+            print(f"Failed to delete user {user_id}: {e}")
+
+    # return _generate_batch
 
 @pytest.fixture()
 def create_user(request):
