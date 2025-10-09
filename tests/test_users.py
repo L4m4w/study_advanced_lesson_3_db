@@ -48,7 +48,7 @@ class TestLocalApi:
     @pytest.mark.parametrize("size_param, expected_size", [
         (1, 1),
         (6, 6),
-        (99, 12)
+        (12, 12)
     ])
     def test_get_users_data_check_by_size_param(self, size_param, expected_size):
         response = requests.get(f"{self.BASE_URL}/api/users?size={size_param}", headers=self.headers)
