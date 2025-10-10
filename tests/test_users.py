@@ -1,6 +1,9 @@
 import requests
 import pytest
 
+from tests.conftest import fill_test_data
+
+
 class TestLocalApi:
 
     @pytest.mark.local
