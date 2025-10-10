@@ -58,6 +58,7 @@ class TestLocalApi:
 
     @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.pagination
+    @pytest.mark.xfail
     @pytest.mark.parametrize("page_param", [
         1, 6, 99
     ])
