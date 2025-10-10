@@ -39,6 +39,7 @@ class TestLocalApi:
     - возвращаются разные данные при разных значениях page;
     """
 
+    @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.pagination
     def test_get_users_check_users_data_amount(self, get_users):
         response = requests.get(f"{self.BASE_URL}/api/users", headers=self.headers)
