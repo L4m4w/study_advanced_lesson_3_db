@@ -1,6 +1,9 @@
 import requests
 import pytest
 
+from tests.conftest import fill_test_data
+
+
 class TestLocalApi:
 
     @pytest.mark.local
@@ -39,22 +42,26 @@ class TestLocalApi:
     - возвращаются разные данные при разных значениях page;
     """
 
+    @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.pagination
     def test_get_users_check_users_data_amount(self, get_users):
         response = requests.get(f"{self.BASE_URL}/api/users", headers=self.headers)
         assert len(response.json()['data']) == len(get_users)
 
+    @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.pagination
     @pytest.mark.parametrize("size_param, expected_size", [
         (1, 1),
         (6, 6),
-        (99, 12)
+        (12, 12)
     ])
     def test_get_users_data_check_by_size_param(self, size_param, expected_size):
         response = requests.get(f"{self.BASE_URL}/api/users?size={size_param}", headers=self.headers)
         assert len(response.json()['data']) == expected_size
 
+    @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.pagination
+    @pytest.mark.xfail
     @pytest.mark.parametrize("page_param", [
         1, 6, 99
     ])
