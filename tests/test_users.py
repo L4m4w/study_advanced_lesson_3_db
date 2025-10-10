@@ -45,6 +45,7 @@ class TestLocalApi:
         response = requests.get(f"{self.BASE_URL}/api/users", headers=self.headers)
         assert len(response.json()['data']) == len(get_users)
 
+    @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.pagination
     @pytest.mark.parametrize("size_param, expected_size", [
         (1, 1),
@@ -55,6 +56,7 @@ class TestLocalApi:
         response = requests.get(f"{self.BASE_URL}/api/users?size={size_param}", headers=self.headers)
         assert len(response.json()['data']) == expected_size
 
+    @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.pagination
     @pytest.mark.parametrize("page_param", [
         1, 6, 99
