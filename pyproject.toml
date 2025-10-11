@@ -19,6 +19,7 @@ psycopg2-binary = "^2.9.10"
 sqlalchemy = "^2.0.43"
 sqlmodel = "^0.0.25"
 faker = "^37.8.0"
+curlify = "^3.0.0"
 
 
 [build-system]
