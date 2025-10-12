@@ -1,3 +1,6 @@
+import logging
+
+import dotenv
 import pytest
 import json
 
@@ -6,6 +9,21 @@ from faker import Faker
 
 from app.helpers import PROJECT_ROOT
 
+
+pytest_plugins = 'tests.utils.fixture_sessions'
+
+@pytest.fixture(scope="session", autouse=True)
+def envs():
+    dotenv.load_dotenv()
+
+def pytest_addoption(parser):
+    parser.addoption('--env', default='dev')
+
+@pytest.fixture(scope="session")
+def env(request):
+    e = request.config.getoption('--env')
+    logging.info(e)
+    return e
 
 @pytest.fixture(autouse=True, scope="class")
 def api_config(request):
