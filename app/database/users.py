@@ -2,8 +2,8 @@ from fastapi import HTTPException
 from typing import Iterable
 
 from sqlmodel import Session, select
-from .engine import engine
-from ..models.Users import User
+from app.database.engine import engine
+from app.models.Users import User
 
 
 def get_user(user_id: int) -> User | None:

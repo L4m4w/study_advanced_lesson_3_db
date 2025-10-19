@@ -20,6 +20,14 @@ sqlalchemy = "^2.0.43"
 sqlmodel = "^0.0.25"
 faker = "^37.8.0"
 
+[tool.pytest.ini_options]
+markers = [
+    "local",
+    "regresin",
+    "pagination",
+    "smoke",
+    "http"
+    ]
 
 [build-system]
 requires = ["poetry-core"]

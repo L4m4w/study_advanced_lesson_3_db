@@ -19,17 +19,14 @@ class TestLocalApi:
         assert response.json()['detail']['error'] == 'Missing API key'
 
     @pytest.mark.local
-    @pytest.mark.usefixtures('fill_test_data')
-    @pytest.mark.xfail
-    @pytest.mark.parametrize("user_id, expected_email", [
-                                 (1, "george.bluth@reqres.in"),
-                                 (2, "janet.weaver@reqres.in"),
-                                 (3, "emma.wong@reqres.in")
-                             ])
-    def test_get_users_check_email_of_user(self, user_id, expected_email):
-        response = requests.get(f"{self.BASE_URL}/api/users/{user_id}", headers=self.headers)
+    @pytest.mark.parametrize("user_id", [
+        1, 2, 3
+    ])
+    def test_get_users_check_email_of_user(self, user_id, fill_test_data):
+        user_ids, expected_email = fill_test_data
+        response = requests.get(f"{self.BASE_URL}/api/users/{user_ids[user_id]}", headers=self.headers)
         # item = [item for item in response.json()['data'] if item.get('id') == user_id]
-        assert response.json()['email'] == expected_email
+        assert response.json()['email'] == expected_email[user_id]
 
     """
     4. Добавить тесты на пагинацию. Тестовых данных должно быть достаточно для проверки пагинации (не менее 10).
@@ -39,12 +36,14 @@ class TestLocalApi:
     - возвращаются разные данные при разных значениях page;
     """
 
+    @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.pagination
     def test_get_users_check_users_data_amount(self, get_users):
         response = requests.get(f"{self.BASE_URL}/api/users", headers=self.headers)
         assert len(response.json()['data']) == len(get_users)
 
     @pytest.mark.pagination
+    @pytest.mark.usefixtures('fill_test_data')
     @pytest.mark.parametrize("size_param, expected_size", [
         (1, 1),
         (6, 6),
@@ -56,11 +55,20 @@ class TestLocalApi:
 
     @pytest.mark.pagination
     @pytest.mark.parametrize("page_param", [
-        1, 6, 99
+        1, 6, 11
     ])
-    def test_get_users_data_check_by_page_param(self, page_param, get_users_by_id):
+    def test_get_users_data_check_by_page_param(self, page_param, get_users_by_id, fill_test_data):
+        user_ids, _ = fill_test_data
         response = requests.get(f"{self.BASE_URL}/api/users?page={page_param}&size=1", headers=self.headers)
-        assert response.json()['data'] == get_users_by_id(page_param)
+
+        response_user_data = response.json()['data'][0]
+
+        expecrted_user_data = get_users_by_id(page_param)[0]
+
+        assert response_user_data['avatar'] == expecrted_user_data['avatar']
+        assert response_user_data['email'] == expecrted_user_data['email']
+        assert response_user_data['first_name'] == expecrted_user_data['first_name']
+        assert response_user_data['last_name'] == expecrted_user_data['last_name']
 
     """
     2. Расширить тестовое покрытие:
@@ -82,27 +90,26 @@ class TestLocalApi:
     def test_create_user(self, generate_users_batch):
 
         generate_func, user_ids_tracker = generate_users_batch
-        users = generate_func(1)
+        user = generate_func(1)
 
-        for user in users:
-            create_response = requests.post(f'{self.BASE_URL}/api/users/', json=user)
-            user_id = create_response.json()['id']
+        create_response = requests.post(f'{self.BASE_URL}/api/users/', json=user)
+        user_id = create_response.json()['id']
 
-            user_ids_tracker.append(user_id)
+        user_ids_tracker.append(user_id)
 
-            response = requests.get(f"{self.BASE_URL}/api/users/{create_response.json()['id']}", headers=self.headers)
+        response = requests.get(f"{self.BASE_URL}/api/users/{create_response.json()['id']}", headers=self.headers)
 
-            assert response.json()['avatar'] == user['avatar']
-            assert response.json()['email'] == user['email']
-            assert response.json()['first_name'] == user['first_name']
-            assert response.json()['last_name'] == user['last_name']
+        assert response.json()['avatar'] == user['avatar']
+        assert response.json()['email'] == user['email']
+        assert response.json()['first_name'] == user['first_name']
+        assert response.json()['last_name'] == user['last_name']
 
     @pytest.mark.http
     def test_delete_user(self, generate_users_batch, create_user):
         generate_func, user_ids_tracker = generate_users_batch
         users = generate_func(1)
 
-        user_to_delete = create_user(*users)
+        user_to_delete = create_user(users)
 
         requests.delete(f'{self.BASE_URL}/api/users/{user_to_delete}')
 
@@ -114,18 +121,17 @@ class TestLocalApi:
         generate_func, user_ids_tracker = generate_users_batch
         user = generate_func(1)
 
-        user_to_update = create_user(*user)
+        user_to_update = create_user(user)
         update_info = generate_func(1)
 
-        for info in update_info:
-            put_response = requests.put(f'{self.BASE_URL}/api/users/{user_to_update}', json=info)
-            user_id = put_response.json()['id']
+        put_response = requests.put(f'{self.BASE_URL}/api/users/{user_to_update}', json=update_info)
+        user_id = put_response.json()['id']
 
-            user_ids_tracker.append(user_id)
+        user_ids_tracker.append(user_id)
 
-            response = requests.get(f"{self.BASE_URL}/api/users/{user_to_update}", headers=self.headers)
+        response = requests.get(f"{self.BASE_URL}/api/users/{user_to_update}", headers=self.headers)
 
-            assert response.json()['avatar'] != user[0]['avatar']
-            assert response.json()['email'] != user[0]['email']
-            assert response.json()['first_name'] != user[0]['first_name']
-            assert response.json()['last_name'] != user[0]['last_name']
+        assert response.json()['avatar'] != user['avatar']
+        assert response.json()['email'] != user['email']
+        assert response.json()['first_name'] != user['first_name']
+        assert response.json()['last_name'] != user['last_name']

@@ -10,7 +10,7 @@ from app.helpers import PROJECT_ROOT
 @pytest.fixture(autouse=True, scope="class")
 def api_config(request):
     if request.cls:
-        setattr(request.cls, 'BASE_URL', "http://localhost:8002")
+        setattr(request.cls, 'BASE_URL', "http://127.0.0.1:8002")
         setattr(request.cls, 'headers', {"x-api-key": "reqres-free-v1"})
 
 @pytest.fixture()
@@ -43,8 +43,9 @@ def fill_test_data(request, get_users):
         api_users.append(response.json())
 
     user_ids = [user['id'] for user in api_users]
+    user_emails = [user['email'] for user in api_users]
 
-    yield user_ids
+    yield user_ids, user_emails
 
     for user_id in user_ids:
         requests.delete(f'{request.cls.BASE_URL}/api/users/{user_id}')
@@ -61,6 +62,7 @@ def generate_users_batch(request):
         for i in range(count):
             first_name = common_kwargs.get('first_name', fake.first_name())
             last_name = common_kwargs.get('last_name', fake.last_name())
+            email = f"{first_name.lower()}.{last_name.lower()}@reqres.in"
 
             user_data = {
                 "email": f"{first_name.lower()}.{last_name.lower()}@reqres.in",
@@ -77,7 +79,10 @@ def generate_users_batch(request):
                 first_name="SameFirstName"  # У всех одинаковое имя
             )
             """
-            users.append(user_data)
+            if count > 1:
+                users.append(user_data)
+            else:
+                users = user_data
 
 
         # users = json.dumps(users)

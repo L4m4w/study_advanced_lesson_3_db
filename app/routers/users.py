@@ -45,15 +45,15 @@ def get_users( x_api_key: str = Header(default=None), params: Params = Depends(g
     return response_message
 
 @router.post("/", status_code=HTTPStatus.CREATED)
-def create_user(user: User) -> User:
-    UserCreate.model_validate(user.model_dump())
+def create_user(user: UserCreate) -> User:
+    user = User(**user.model_dump())
     return users.create_user(user)
 
 @router.put("/{user_id}", status_code=HTTPStatus.CREATED)
-def update_user(user_id: int, user: User) -> User:
+def update_user(user_id: int, user: UserUpdate) -> User:
     if user_id <1:
         raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail='Invalid user ID')
-    UserUpdate.model_validate(user.model_dump())
+    user = User(**user.model_dump())
     return users.update_user(user_id, user)
 
 @router.delete("/{user_id}", status_code=HTTPStatus.OK)
