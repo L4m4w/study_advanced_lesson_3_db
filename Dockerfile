@@ -1,24 +1,23 @@
 FROM python:3.12-slim
 
-# ENV POETRY_HOME="/opt/poetry" \
-#     POETRY_VIRTUALENVS_IN_PROJECT=true \
-#     POETRY_NO_INTERACTION=1 \
-#     PATH="$POETRY_HOME/bin:$PATH"
-
-# RUN curl -sSL https://install.python-poetry.org | python3 -
-
-RUN pip install poetry
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache \
+    POETRY_NO_INTERACTION=1
 
 WORKDIR /code
 
-# COPY pyproject.toml poetry.lock ./
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    curl \
+    && curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python && \
+    ln -s /opt/poetry/bin/poetry /usr/local/bin/poetry && \
+    poetry config virtualenvs.create false && \
+    rm -rf /var/lib/apt/lists/*
 
-# RUN poetry install --no-root
+COPY ./pyproject.toml ./poetry.lock* /code/
 
-COPY ./requirements.txt /code/requirements.txt
-
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 
 COPY ./app /code/app
 
-CMD ["fastapi", "run", "app/main.py", "--port", "80"]
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
